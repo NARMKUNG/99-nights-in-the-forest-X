@@ -120,8 +120,20 @@ local Button = Tab:CreateButton({
 local Tab = Window:CreateTab("วาปไปยังสถานที่", 4483362458)
 
 local Button = Tab:CreateButton({
-   Name = "Button Example",
+   Name = "วาร์ปไปกองไฟ",
    Callback = function()
-   -- The function that takes place when the button is pressed
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      local hrp = character:WaitForChild("HumanoidRootPart")
+
+      local target = workspace:WaitForChild("Map")
+         :WaitForChild("Campground")
+         :WaitForChild("MainFire")
+
+      if target and target:IsA("Model") and target.PrimaryPart then
+         hrp.CFrame = target.PrimaryPart.CFrame + Vector3.new(0, 5, 0)
+      else
+         warn("MainFire ไม่มี PrimaryPart")
+      end
    end,
 })
