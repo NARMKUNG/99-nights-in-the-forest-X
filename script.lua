@@ -1,12 +1,3 @@
---[[
-   📦 Rayfield Dropdown Teleport System
-   - แสดง item ไม่ซ้ำใน Dropdown
-   - กดปุ่ม "Teleport" เพื่อสุ่มวาร์ปไปยัง item ที่เลือก
-   - รองรับทั้ง Part และ Model ที่มี PrimaryPart หรือ BasePart
-
-   โดย NARMKUNG x ChatGPT
-]]--
-
 -- ✅ Services
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -50,15 +41,20 @@ local Window = Rayfield:CreateWindow({
       Key = {"CORE2025"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
    }
 })
-local Tab = Window:CreateTab("ข้อมูลการอัพเดท", 4483362458)
+
+-------------------------------------------------------------------
+
+local Tab = Window:CreateTab("ข้อมูลการอัพเดท🔄", 4483362458)
 local Button = Tab:CreateButton({
-   Name = "อัพเดท 1 วาปไปหาของเเละสถานที่ได้",
+   Name = "โปรดอ่าก่อนใช้ ! ถ้า item ใน Menu ไม่โหลดเพื่มออกจากสคริปเเละรันสคริปใหม่ ขอบคุณครับ",
    Callback = function()
    -- The function that takes place when the button is pressed
    end,
 })
 
-local Tab = Window:CreateTab("วาปไปหาของ", 4483362458)
+-------------------------------------------------------------------
+
+local Tab = Window:CreateTab("วาปไปหาของ📦", 4483362458)
 
 -- ✅ ตัวแปรเก็บชื่อ item ที่เลือก
 local SelectedItemName = nil
@@ -107,7 +103,7 @@ local Dropdown = Tab:CreateDropdown({
 
 -- ✅ ปุ่มวาร์ป
 local Button = Tab:CreateButton({
-   Name = "🔄 วาร์ปไปยัง ของ",
+   Name = "🧭 วาร์ปไปหา ของ 📦",
    Callback = function()
       if not SelectedItemName then
          warn("⚠ กรุณาเลือก ของ ก่อนวาร์ป")
@@ -153,10 +149,67 @@ local Button = Tab:CreateButton({
    end
 })
 
-local Tab = Window:CreateTab("วาปไปยังสถานที่", 4483362458)
+-------------------------------------------------------------------
+
+local Tab = Window:CreateTab("วาปไปหาเด็ก👶🏻", 4483362458)
+
+--📦 สร้างตารางชื่อทั้งหมดใน workspace.Characters ที่ขึ้นต้นด้วย "Lost Child"
+local function GetUniqueLostChildren()
+    local children = workspace:WaitForChild("Characters"):GetChildren()
+    local names = {}
+    local unique = {}
+
+    for _, obj in pairs(children) do
+        if obj:IsA("Model") and string.match(obj.Name, "^Lost Child") then
+            if not unique[obj.Name] then
+                table.insert(names, obj.Name)
+                unique[obj.Name] = true
+            end
+        end
+    end
+
+    return names
+end
+
+--📋 เก็บชื่อ object ปัจจุบันที่เลือกไว้
+local selectedName = nil
+
+--🔽 Dropdown UI
+local Dropdown = Tab:CreateDropdown({
+    Name = "เลือกชื่อ เด็ก 👶🏻",
+    Options = GetUniqueLostChildren(),
+    CurrentOption = nil,
+    MultipleOptions = false,
+    Flag = "LostChildDropdown",
+    Callback = function(Options)
+        selectedName = Options[1] -- เก็บชื่อที่เลือกไว้
+    end,
+})
+
+--🧭 ปุ่มวาร์ป
+Tab:CreateButton({
+    Name = "🧭 วาปไปหา เด็ก 👶🏻",
+    Callback = function()
+        if selectedName then
+            local target = workspace:FindFirstChild("Characters"):FindFirstChild(selectedName)
+            local player = game.Players.LocalPlayer
+            if target and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target:GetModelCFrame()
+            else
+                warn("ไม่พบเป้าหมายหรือ Player")
+            end
+        else
+            warn("ยังไม่ได้เลือกชื่อ Lost Child")
+        end
+    end,
+})
+
+-------------------------------------------------------------------
+
+local Tab = Window:CreateTab("วาปไปหาสถานที่🗺️", 4483362458)
 
 local Button = Tab:CreateButton({
-   Name = "วาร์ปไปกองไฟ",
+   Name = "วาร์ปไปหา กองไฟ 🔥",
    Callback = function()
       local player = game.Players.LocalPlayer
       local character = player.Character or player.CharacterAdded:Wait()
@@ -173,3 +226,5 @@ local Button = Tab:CreateButton({
       end
    end,
 })
+
+-------------------------------------------------------------------
