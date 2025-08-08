@@ -45,10 +45,35 @@ local Window = Rayfield:CreateWindow({
 -------------------------------------------------------------------
 
 local Tab = Window:CreateTab("ข้อมูลการอัพเดท🔄", 4483362458)
+
 local Button = Tab:CreateButton({
    Name = "โปรดอ่าก่อนใช้ ! ถ้า item ใน Menu ไม่โหลดเพื่มออกจากสคริปเเละรันสคริปใหม่ ขอบคุณครับ",
    Callback = function()
    -- The function that takes place when the button is pressed
+   end,
+})
+
+-------------------------------------------------------------------
+
+local Tab = Window:CreateTab("ผู้เล่น🙍‍♂️", 4483362458)
+
+local Toggle = Tab:CreateToggle({
+   Name = "เปิดก่องไม่มี คูดาว์ 📭",
+   CurrentValue = false,
+   Flag = "ToggleNoCooldown",
+   Callback = function(Value)
+      for _, prompt in pairs(workspace:GetDescendants()) do
+         if prompt:IsA("ProximityPrompt") then
+            -- ตรวจสอบก่อนว่า property มีไหมและเขียนได้ไหม
+            if Value then
+               if pcall(function() prompt.CooldownDuration = 0 end) then end
+               if pcall(function() prompt.HoldDuration = 0 end) then end
+            else
+               if pcall(function() prompt.CooldownDuration = 1 end) then end
+               if pcall(function() prompt.HoldDuration = 0.5 end) then end
+            end
+         end
+      end
    end,
 })
 
