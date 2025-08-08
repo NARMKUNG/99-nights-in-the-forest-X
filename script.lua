@@ -253,6 +253,24 @@ local Button = Tab:CreateButton({
 })
 
 local Button = Tab:CreateButton({
+   Name = "วาร์ปไปหา ฐานเพรช 💎",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      local hrp = character:WaitForChild("HumanoidRootPart")
+
+      local target = workspace:WaitForChild("Items")
+         :WaitForChild("Stronghold Diamond Chest")
+
+      if target and target:IsA("Model") and target.PrimaryPart then
+         hrp.CFrame = target.PrimaryPart.CFrame + Vector3.new(0, 5, 0)
+      else
+         warn("Sign ไม่มี PrimaryPart")
+      end
+   end,
+})
+
+local Button = Tab:CreateButton({
    Name = "วาร์ปไปหา ฐานเอเลี่ยน 👽",
    Callback = function()
       local player = game.Players.LocalPlayer
