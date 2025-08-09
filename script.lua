@@ -1,5 +1,13 @@
+-- ===================================
+-- NARMKUNG CORE with Kill Aura
+-- For: 99 Nights In The Forest
+-- ===================================
+
 -- ✅ Services
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
 -- ✅ Rayfield UI Setup
@@ -7,55 +15,63 @@ local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 local Window = Rayfield:CreateWindow({
    Name = "NARMKUNG CORE",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   Icon = 0,
    LoadingTitle = "CORE UI",
    LoadingSubtitle = "by NARMKUNG",
-   ShowText = "NARMKUNG CORE", -- for mobile users to unhide rayfield, change if you'd like
-   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
-
-   ToggleUIKeybind = "K", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
-
+   ShowText = "NARMKUNG CORE",
+   Theme = "Default",
+   ToggleUIKeybind = "K",
    DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
-
+   DisableBuildWarnings = false,
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
+      FolderName = nil,
       FileName = "Big Hub"
    },
-
    Discord = {
-      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
    },
-
-   KeySystem = true, -- Set this to true to use our key system
+   KeySystem = true,
    KeySettings = {
       Title = "NARMKUNG คีย์ระบบ",
       Subtitle = "ตัวหลัก ระบบ",
-      Note = "โปรดใส่คีย์ในองค์กรลับที่เรารู้กัน : ห้าบบอกใครเด็ดขาด", -- Use this to tell the user how to get a key
-      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"CORE2026"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+      Note = "โปรดใส่คีย์ในองค์กรลับที่เรารู้กัน : ห้าบบอกใครเด็ดขาด",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"CORE2026"}
    }
 })
+
+-- ===== VARIABLES =====
+local KillAuraActive = false
+
+-- ===== CONFIGURATION =====
+local CONFIG = {
+    DISTANCE = 50,
+    DAMAGE = 999,
+    DELAY = 0.1
+}
 
 -------------------------------------------------------------------
 
 local Tab = Window:CreateTab("ข้อมูลการอัพเดท🔄", 4483362458)
 
-local Button = Tab:CreateButton({
-   Name = "โปรดอ่าก่อนใช้ ! ถ้า item ใน Menu ไม่โหลดเพื่มออกจากสคริปเเละรันสคริปใหม่ ขอบคุณครับ",
-   Callback = function()
-   -- The function that takes place when the button is pressed
-   end,
+Tab:CreateParagraph({
+    Title = "📋 ข้อมูลการอัพเดท",
+    Content = "1. ระบบ โจมตีอัตโนมัติ"
 })
 
 -------------------------------------------------------------------
 
 local Tab = Window:CreateTab("ผู้เล่น🙍‍♂️", 4483362458)
+
+Tab:CreateParagraph({
+    Title = "📋 คำแนะนำการใช้งาน",
+    Content = "1. หมวดหมู่ผู้เล่นมีมากมาย\n2. ถ้ามีบัคโปรดเเจ้ง"
+})
 
 local Toggle = Tab:CreateToggle({
    Name = "เปิดก่องไม่มี คูดาว์ 📭",
@@ -64,7 +80,6 @@ local Toggle = Tab:CreateToggle({
    Callback = function(Value)
       for _, prompt in pairs(workspace:GetDescendants()) do
          if prompt:IsA("ProximityPrompt") then
-            -- ตรวจสอบก่อนว่า property มีไหมและเขียนได้ไหม
             if Value then
                if pcall(function() prompt.CooldownDuration = 0 end) then end
                if pcall(function() prompt.HoldDuration = 0 end) then end
@@ -79,7 +94,182 @@ local Toggle = Tab:CreateToggle({
 
 -------------------------------------------------------------------
 
+local Tab = Window:CreateTab("โจมตี ⚔️", 4483362458)
+
+-- ===== KILL AURA FUNCTION =====
+local function StartKillAura()
+    spawn(function()
+        while KillAuraActive do
+            local character = player.Character
+            
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local rootPart = character.HumanoidRootPart
+                
+                -- Find weapon in inventory
+                local weapon = player.Inventory:FindFirstChild("Old Axe") or 
+                              player.Inventory:FindFirstChild("Good Axe") or
+                              player.Inventory:FindFirstChild("Strong Axe") or
+                              player.Inventory:FindFirstChild("Chainsaw")
+                
+                if weapon then
+                    local enemiesHit = 0
+                    -- Look for enemies in Characters folder
+                    for _, enemy in pairs(Workspace.Characters:GetChildren()) do
+                        if enemy:IsA("Model") and enemy.PrimaryPart and enemy ~= character then
+                            -- Skip friendly NPCs
+                            if not enemy.Name:find("Lost Child") and enemy.Name ~= "Pelt Trader" then
+                                -- Calculate distance
+                                local distance = (enemy.PrimaryPart.Position - rootPart.Position).Magnitude
+                                
+                                -- Attack if within range
+                                if distance <= CONFIG.DISTANCE then
+                                    pcall(function()
+                                        ReplicatedStorage.RemoteEvents.ToolDamageObject:InvokeServer(
+                                            enemy, 
+                                            weapon, 
+                                            CONFIG.DAMAGE, 
+                                            rootPart.CFrame
+                                        )
+                                    end)
+                                    enemiesHit = enemiesHit + 1
+                                end
+                            end
+                        end
+                    end
+                else
+                    -- Auto-disable if no weapon
+                    if KillAuraActive then
+                        Rayfield:Notify({
+                            Title = "⚠️ ไม่มีอาวุธ",
+                            Content = "กรุณาถืออาวุธ (ขวาน หรือ เลื่อยยนต์)!",
+                            Duration = 3,
+                            Image = "alert-triangle"
+                        })
+                        KillAuraActive = false
+                    end
+                end
+            end
+            
+            wait(CONFIG.DELAY)
+        end
+    end)
+end
+
+Tab:CreateParagraph({
+    Title = "📋 คำแนะนำการใช้งาน",
+    Content = "1. ถืออาวุธ (ขวาน หรือ เลื่อยยนต์)\n2. เปิดระบบโจมตีอัตโนมัติ\n3. ปรับระยะโจมตีตามต้องการ\n4. ระบบจะโจมตีศัตรูใกล้เคียงอัตโนมัติ"
+})
+
+Tab:CreateToggle({
+    Name = "🗡️ โจมตีอัตโนมัติ",
+    CurrentValue = false,
+    Flag = "KillAuraToggle",
+    Callback = function(Value)
+        KillAuraActive = Value
+        
+        if Value then
+            -- Check for weapon before starting
+            local weapon = player.Inventory:FindFirstChild("Old Axe") or 
+                          player.Inventory:FindFirstChild("Good Axe") or
+                          player.Inventory:FindFirstChild("Strong Axe") or
+                          player.Inventory:FindFirstChild("Chainsaw")
+            
+            if weapon then
+                Rayfield:Notify({
+                    Title = "⚔️ เปิดระบบโจมตีแล้ว",
+                    Content = "ระยะ: " .. CONFIG.DISTANCE .. " | อาวุธ: " .. weapon.Name,
+                    Duration = 2,
+                    Image = "zap"
+                })
+                StartKillAura()
+            else
+                Rayfield:Notify({
+                    Title = "❌ ไม่พบอาวุธ",
+                    Content = "กรุณาถืออาวุธก่อนเปิดระบบ!",
+                    Duration = 3,
+                    Image = "alert-circle"
+                })
+                KillAuraActive = false
+                return
+            end
+        else
+            Rayfield:Notify({
+                Title = "🛑 ปิดระบบโจมตี",
+                Content = "ระบบโจมตีอัตโนมัติถูกปิดแล้ว",
+                Duration = 2,
+                Image = "shield-off"
+            })
+        end
+    end
+})
+
+Tab:CreateSlider({
+    Name = "📏 ระยะโจมตี",
+    Range = {10, 500},
+    Increment = 5,
+    Suffix = " หน่วย",
+    CurrentValue = CONFIG.DISTANCE,
+    Flag = "DistanceSlider",
+    Callback = function(Value)
+        CONFIG.DISTANCE = Value
+        
+        if KillAuraActive then
+            Rayfield:Notify({
+                Title = "📏 เปลี่ยนระยะแล้ว",
+                Content = "ระยะใหม่: " .. Value .. " หน่วย",
+                Duration = 1,
+                Image = "move"
+            })
+        end
+    end
+})
+
+Tab:CreateSlider({
+    Name = "⚡ ความเร็วโจมตี",
+    Range = {0.05, 1},
+    Increment = 0.05,
+    Suffix = " วินาที",
+    CurrentValue = CONFIG.DELAY,
+    Flag = "SpeedSlider",
+    Callback = function(Value)
+        CONFIG.DELAY = Value
+    end
+})
+
+Tab:CreateButton({
+    Name = "🎯 ทดสอบอาวุธปัจจุบัน",
+    Callback = function()
+        local weapon = player.Inventory:FindFirstChild("Old Axe") or 
+                      player.Inventory:FindFirstChild("Good Axe") or
+                      player.Inventory:FindFirstChild("Strong Axe") or
+                      player.Inventory:FindFirstChild("Chainsaw")
+        
+        if weapon then
+            Rayfield:Notify({
+                Title = "✅ พบอาวุธแล้ว",
+                Content = "อาวุธปัจจุบัน: " .. weapon.Name,
+                Duration = 2,
+                Image = "check-circle"
+            })
+        else
+            Rayfield:Notify({
+                Title = "❌ ไม่มีอาวุธ",
+                Content = "ไม่พบอาวุธในกระเป๋า",
+                Duration = 3,
+                Image = "x-circle"
+            })
+        end
+    end
+})
+
+-------------------------------------------------------------------
+
 local Tab = Window:CreateTab("วาปไปหาของ📦", 4483362458)
+
+Tab:CreateParagraph({
+    Title = "📋 คำแนะนำการใช้งาน",
+    Content = "1. โปรดเลือกของก่อนวาป"
+})
 
 -- ✅ ตัวแปรเก็บชื่อ item ที่เลือก
 local SelectedItemName = nil
@@ -178,6 +368,11 @@ local Button = Tab:CreateButton({
 
 local Tab = Window:CreateTab("วาปไปหาเด็ก👶🏻", 4483362458)
 
+Tab:CreateParagraph({
+    Title = "📋 คำแนะนำการใช้งาน",
+    Content = "1. โปรดเลือกเด็กก่อนวาป "
+})
+
 --📦 สร้างตารางชื่อทั้งหมดใน workspace.Characters ที่ขึ้นต้นด้วย "Lost Child"
 local function GetUniqueLostChildren()
     local children = workspace:WaitForChild("Characters"):GetChildren()
@@ -233,6 +428,11 @@ Tab:CreateButton({
 
 local Tab = Window:CreateTab("วาปไปหาสถานที่🗺️", 4483362458)
 
+Tab:CreateParagraph({
+    Title = "📋 คำแนะนำการใช้งาน",
+    Content = "1. ถ้ากดวาปเเล้วไม่ไปเเสดงว่า สถานที่นั้นยังไม่เกิด "
+})
+
 local Button = Tab:CreateButton({
    Name = "วาร์ปไปหา กองไฟ 🔥",
    Callback = function()
@@ -287,4 +487,40 @@ local Button = Tab:CreateButton({
       end
    end,
 })
+
 -------------------------------------------------------------------
+-- ===== STATUS MONITORING =====
+spawn(function()
+    while true do
+        wait(5) -- Check every 5 seconds
+        
+        if KillAuraActive then
+            -- Check if player still has weapon
+            local weapon = player.Inventory:FindFirstChild("Old Axe") or 
+                          player.Inventory:FindFirstChild("Good Axe") or
+                          player.Inventory:FindFirstChild("Strong Axe") or
+                          player.Inventory:FindFirstChild("Chainsaw")
+            
+            if not weapon then
+                KillAuraActive = false
+                Rayfield:Notify({
+                    Title = "⚠️ สูญเสียอาวุธ",
+                    Content = "ระบบโจมตีถูกปิดเนื่องจากไม่พบอาวุธ",
+                    Duration = 3,
+                    Image = "alert-triangle"
+                })
+            end
+        end
+    end
+end)
+
+-- ===== SUCCESS MESSAGE =====
+Rayfield:Notify({
+    Title = "🎉 NARMKUNG CORE พร้อมใช้งาน",
+    Content = "ใช้งานให้สนุกนะครับมีบัคโปรดเเจ้ง",
+    Duration = 4,
+    Image = "check"
+})
+
+print("✅ NARMKUNG CORE loaded!")
+print("🎮 Press 'K' to toggle UI")
