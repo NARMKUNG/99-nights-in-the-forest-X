@@ -14,7 +14,7 @@ local player = Players.LocalPlayer
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "NARMKUNG CORE",
+   Name = "NARMKUNG CORE 1.0",
    Icon = 0,
    LoadingTitle = "CORE UI",
    LoadingSubtitle = "by NARMKUNG",
@@ -26,7 +26,7 @@ local Window = Rayfield:CreateWindow({
    ConfigurationSaving = {
       Enabled = true,
       FolderName = nil,
-      FileName = "Big Hub"
+      FileName = "NARMKUNG CORE"
    },
    Discord = {
       Enabled = false,
@@ -52,7 +52,7 @@ local KillAuraActive = false
 local CONFIG = {
     DISTANCE = 50,
     DAMAGE = 999,
-    DELAY = 0.1
+    DELAY = 0.05
 }
 
 -------------------------------------------------------------------
